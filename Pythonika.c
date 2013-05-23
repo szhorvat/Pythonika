@@ -343,7 +343,7 @@ void mat_process_iterable_object(PyObject *obj, char *error_msg)
             return;
         }
         
-        while(item = PyIter_Next(iterator)) {
+        while((item = PyIter_Next(iterator))) {
             python_to_mathematica_object(item);
             Py_DECREF(item);
         }
