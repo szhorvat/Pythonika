@@ -401,14 +401,18 @@ void python_to_mathematica_object(PyObject *obj)
         
         PyString_AsStringAndSize(obj, &str, &length);
         
-        MLPutByteString(stdlink, (unsigned char *)str, length);
+        MLPutUTF8String(stdlink, (unsigned char *)str, length);
         return;
     }
 
     if(PyUnicode_Check(obj)) {
-        MLPutUnicodeString(stdlink,
-            PyUnicode_AsUnicode(obj),
-            PyUnicode_GetSize(obj) );
+        PyObject *pystr = PyUnicode_AsEncodedString(obj, "utf-8", "strict");
+
+        char *str;
+        Py_ssize_t length;        
+        PyString_AsStringAndSize(pystr, &str, &length);
+
+        MLPutUTF8String(stdlink, (unsigned char *)str, length);
         return;
     }
     if(PyTuple_Check(obj)) {
