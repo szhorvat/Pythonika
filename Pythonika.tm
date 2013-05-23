@@ -1,3 +1,18 @@
+
+:Evaluate: BeginPackage["Py`"]
+
+:Evaluate: Py::usage = "Py[code] runs Python code and returns the result as a Mathematica expression"
+:Evaluate: PyInteger
+:Evaluate: PyReal
+:Evaluate: PyComplex
+:Evaluate: PyString
+:Evaluate: PyUnicodeString
+:Evaluate: PySymbol
+:Evaluate: ToPy
+:Evaluate: PyFunction
+
+:Evaluate: Begin["Py`Private`"]
+
 :Begin:
 :Function: Py
 :Pattern: Py[input_String]
@@ -76,16 +91,19 @@
 
 :Evaluate: code = "import parser, symbol\ndef scan(tree):\n  if tree[0] == symbol.funcdef:\n    return tree[2][1] # Function name\n  elif isinstance(tree[1], tuple):\n      return scan(tree[1])\n  return None\n\ndef __get_function_name__(code):\n  ast = parser.suite(code)\n  tup = ast.totuple()\n  return scan(tup)\n"
 
-:Evaluate: PyFunctionCreator[funcDef_, args__] = {
-    If[Length[Names["code"]]==1, Py[code]; Remove["code"]];
+:Evaluate: PyFunctionCreator[funcDef_, args__] = Function[
+    Py[code];
     Py[funcDef];
     ToPy["__function_code__", funcDef];
     ToPy[
-    "__function_arguments__", If[Length[{args}] == 1, {args}, {
-    args}]];
+    "__function_arguments__", If[Length[{args}] == 1, {args}, {args}]];
     funcName = Py["__get_function_name__(__function_code__)"];
     result = Py[funcName <> "(*__function_arguments__)"];
     Py["del __function_code__, __function_arguments__"];
-    result}[[1]] &;
+    result];
           
 :Evaluate: PyFunction=Function[{funcDef},PyFunctionCreator[funcDef,##]];
+
+:Evaluate: End[]
+:Evaluate: EndPackage[]
+
